@@ -42,7 +42,7 @@ jobs:
           # this allows the push to work in forks
           images: |
             # name=${{ secrets.DOCKER_USERNAME }}/traefik-forward-auth
-            name=ghcr.io/${{ github.repo }}
+            name=ghcr.io/${{ github.repository }}
 
           tags: |
             # the semantic versioning tags add "latest" when a version tag is present

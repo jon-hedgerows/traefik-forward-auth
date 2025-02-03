@@ -1,4 +1,4 @@
-name: release
+name: Dev Build
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Build and package container image
+    name: Build and package container image - for dev
 
     runs-on:
       - ubuntu-latest

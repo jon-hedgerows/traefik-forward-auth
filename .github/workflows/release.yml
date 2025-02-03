@@ -5,53 +5,50 @@ on:
     types: [published]
 
 jobs:
-
   build:
-    name: Build release binaries
-    runs-on: ubuntu-latest
+    name: Build and package container image
+
+    runs-on:
+      - ubuntu-latest
+
     steps:
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.13
-      id: go
+      - name: Log in to ghcr.io
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build AMD64
-      run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -installsuffix nocgo -v -o traefik-forward-auth_amd64 ./cmd
+      - name: Setup buildkit
+        uses: docker/setup-buildx-action@v3
 
-    - name: Build ARM
-      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm GO111MODULE=on go build -a -installsuffix nocgo -v -o traefik-forward-auth_arm ./cmd
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # image name is dumbdrop, in the docker user's repo
+          # this allows the push to work in forks
+          images: |
+            name=ghcr.io/${{ github.repository }}
 
-    - name: Get tag name
-      run: echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          tags: |
+            # the semantic versioning tags add "latest" when a version tag is present
+            # output x.y.z, based on a tag vx.y.z (e.g. 1.1.2 for a tag v1.1.2)
+            type=semver,pattern={{version}}
+            # output x.y, based on a tag vx.y.z
+            type=semver,pattern={{major}}.{{minor}}
+            # output x, based on a tag vx.y.z, disabled if x is zero
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+            # full length sha
+            type=sha,format=long
 
-    - name: Get artifact details
-      uses: octokit/request-action@v2.x
-      id: get_release_details
-      with:
-        route: get /repos/${{ github.repository }}/releases/tags/${{ env.TAG }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload AMD64 release asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ fromJson(steps.get_release_details.outputs.data).upload_url }}
-        asset_path: traefik-forward-auth_amd64
-        asset_name: traefik-forward-auth_amd64
-        asset_content_type: application/octet-stream
-
-    - name: Upload ARM release asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ fromJson(steps.get_release_details.outputs.data).upload_url }}
-        asset_path: traefik-forward-auth_arm
-        asset_name: traefik-forward-auth_arm
-        asset_content_type: application/octet-stream
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64

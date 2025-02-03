@@ -1,5 +1,7 @@
 
-# Traefik Forward Auth ![Build Status](https://img.shields.io/github/workflow/status/jon-hedgerows/traefik-forward-auth/CI) [![Go Report Card](https://goreportcard.com/badge/github.com/jon-hedgerows/traefik-forward-auth)](https://goreportcard.com/report/github.com/jon-hedgerows/traefik-forward-auth) ![Docker Pulls](https://img.shields.io/docker/pulls/jon-hedgerows/traefik-forward-auth.svg) [![GitHub release](https://img.shields.io/github/release/jon-hedgerows/traefik-forward-auth.svg)](https://GitHub.com/jon-hedgerows/traefik-forward-auth/releases/)
+# Traefik Forward Auth
+
+![Build Status](https://img.shields.io/github/workflow/status/jon-hedgerows/traefik-forward-auth/CI) [![Go Report Card](https://goreportcard.com/badge/github.com/jon-hedgerows/traefik-forward-auth)](https://goreportcard.com/report/github.com/jon-hedgerows/traefik-forward-auth) ![Github Downloads](https://img.shields.io/github/downloads/jon-hedgerows/traefik-forward-auth/total) [![GitHub release](https://img.shields.io/github/release/jon-hedgerows/traefik-forward-auth.svg)](https://GitHub.com/jon-hedgerows/traefik-forward-auth/releases/)
 
 
 A minimal forward authentication service that provides OAuth/SSO login and authentication for the [traefik](https://github.com/containous/traefik) reverse proxy/load balancer.

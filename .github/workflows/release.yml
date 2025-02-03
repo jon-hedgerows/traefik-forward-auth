@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build and package container image
+    name: Build and package container image for release
 
     runs-on:
       - ubuntu-latest
